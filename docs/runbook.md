@@ -67,7 +67,7 @@ curl -i http://127.0.0.1:8000/notes
 Пример за създаване на бележка от PowerShell:
 
 ```powershell
-curl.exe -i -X POST http://127.0.0.1:8000/notes -H "Content-Type: application/json" -d '{\"title\":\"Test note\",\"body\":\"Hello\"}'
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/notes -ContentType "application/json" -Body '{"title":"Test note","body":"Hello"}'
 ```
 
 Пример за Linux / macOS:
