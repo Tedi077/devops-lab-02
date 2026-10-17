@@ -14,10 +14,10 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 ```
 
-Стартиране на услугата на порт **8000**:
+Стартиране на услугата на порт **9000**:
 
 ```powershell
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 9000
 ```
 
 ### Linux / macOS (терминал)
@@ -26,7 +26,7 @@ py -3.12 -m venv .venv
 python3.12 --version
 python3.12 -m venv .venv
 ./.venv/bin/python -m pip install -r requirements-dev.txt
-./.venv/bin/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+./.venv/bin/python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 9000
 ```
 
 Оставете терминала със сървъра отворен. За спиране натиснете `Ctrl+C`.
@@ -38,19 +38,19 @@ python3.12 -m venv .venv
 **Windows (PowerShell):**
 
 ```powershell
-curl.exe -i http://127.0.0.1:8000/health
-curl.exe -i http://127.0.0.1:8000/ready
-curl.exe -i http://127.0.0.1:8000/version
-curl.exe -i http://127.0.0.1:8000/notes
+curl.exe -i http://127.0.0.1:9000/health
+curl.exe -i http://127.0.0.1:9000/ready
+curl.exe -i http://127.0.0.1:9000/version
+curl.exe -i http://127.0.0.1:9000/notes
 ```
 
 **Linux / macOS:**
 
 ```bash
-curl -i http://127.0.0.1:8000/health
-curl -i http://127.0.0.1:8000/ready
-curl -i http://127.0.0.1:8000/version
-curl -i http://127.0.0.1:8000/notes
+curl -i http://127.0.0.1:9000/health
+curl -i http://127.0.0.1:9000/ready
+curl -i http://127.0.0.1:9000/version
+curl -i http://127.0.0.1:9000/notes
 ```
 
 Очаквани резултати при стандартна конфигурация без база данни:
@@ -62,18 +62,18 @@ curl -i http://127.0.0.1:8000/notes
 | `/version` | HTTP 200 и `{"version":"0.1.0"}`, ако `APP_VERSION` не е зададена |
 | `/notes` | HTTP 200 и `[]`, ако все още няма бележки |
 
-Автоматичната Swagger документация е достъпна на `http://127.0.0.1:8000/docs`. Отворете адреса в браузър, за да видите операциите и техните параметри.
+Автоматичната Swagger документация е достъпна на `http://127.0.0.1:9000/docs`. Отворете адреса в браузър, за да видите операциите и техните параметри.
 
 Пример за създаване на бележка от PowerShell:
 
 ```powershell
-Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/notes -ContentType "application/json" -Body '{"title":"Test note","body":"Hello"}'
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:9000/notes -ContentType "application/json" -Body '{"title":"Test note","body":"Hello"}'
 ```
 
 Пример за Linux / macOS:
 
 ```bash
-curl -i -X POST http://127.0.0.1:8000/notes -H 'Content-Type: application/json' -d '{"title":"Test note","body":"Hello"}'
+curl -i -X POST http://127.0.0.1:9000/notes -H 'Content-Type: application/json' -d '{"title":"Test note","body":"Hello"}'
 ```
 
 Успешното създаване връща HTTP 201 и JSON с `id`, `title`, `body` и `category`. Бележките в паметта се губят при рестарт на услугата.
@@ -119,11 +119,11 @@ curl -i -X POST http://127.0.0.1:8000/notes -H 'Content-Type: application/json' 
 
    За Linux / macOS използвайте `./.venv/bin/python` вместо `.\.venv\Scripts\python.exe`.
 
-3. **Достъпност на услугата и хранилището.** Проверете дали сървърът е стартиран на порт 8000 и дали `/ready` връща успешен отговор:
+3. **Достъпност на услугата и хранилището.** Проверете дали сървърът е стартиран на порт 9000 и дали `/ready` връща успешен отговор:
 
    ```powershell
-   curl.exe -i http://127.0.0.1:8000/health
-   curl.exe -i http://127.0.0.1:8000/ready
+   curl.exe -i http://127.0.0.1:9000/health
+   curl.exe -i http://127.0.0.1:9000/ready
    ```
 
-   За Linux / macOS заменете `curl.exe` с `curl`. Ако `/health` работи, но `/ready` връща HTTP 503, проверете връзката към PostgreSQL, когато е зададен `DATABASE_URL`. При грешка „connection refused“ проверете дали Uvicorn е стартиран и дали порт 8000 не се използва от друг процес.
+   За Linux / macOS заменете `curl.exe` с `curl`. Ако `/health` работи, но `/ready` връща HTTP 503, проверете връзката към PostgreSQL, когато е зададен `DATABASE_URL`. При грешка „connection refused“ проверете дали Uvicorn е стартиран и дали порт 9000 не се използва от друг процес.
