@@ -127,3 +127,73 @@ curl -i -X POST http://127.0.0.1:8000/notes -H 'Content-Type: application/json' 
    ```
 
    За Linux / macOS заменете `curl.exe` с `curl`. Ако `/health` работи, но `/ready` връща HTTP 503, проверете връзката към PostgreSQL, когато е зададен `DATABASE_URL`. При грешка „connection refused“ проверете дали Uvicorn е стартиран и дали порт 8000 не се използва от друг процес.
+
+## Стартиране с Docker
+
+Приложението Notes API може да се стартира в Docker контейнер, без да е необходима локална инсталация на Python и зависимостите.
+
+### Build – изграждане на образа
+
+От основната директория на проекта:
+
+```bash
+docker build -t notes-api:0.3.0 .
+```
+
+### Run – стартиране на контейнера
+
+```bash
+docker run -d --name notes-api -p 8000:8000 notes-api:0.3.0
+```
+
+Приложението е достъпно на порт 8000.
+
+Проверка:
+
+```bash
+curl http://localhost:8000/health
+```
+
+Очакван отговор:
+
+```json
+{"status":"ok"}
+```
+
+### Logs – преглед на логовете
+
+```bash
+docker logs notes-api
+```
+
+За наблюдение в реално време:
+
+```bash
+docker logs -f notes-api
+```
+
+Изход от наблюдението: Ctrl+C.
+
+### Stop – спиране на контейнера
+
+```bash
+docker stop notes-api
+```
+
+Премахване на спрения контейнер:
+
+```bash
+docker rm notes-api
+```
+
+### Проверка на състоянието
+
+```bash
+docker ps
+docker inspect --format '{{.State.Health.Status}}' notes-api
+docker exec notes-api whoami
+```
+
+Очаквано състояние: `healthy`.
+
+Приложението работи с непривилегирован потребител `appuser`, а Docker проверява автоматично `/health`.
