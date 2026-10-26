@@ -5,3 +5,6 @@ docs
 __pycache__
 *.pyc
 .pytest_cache
+# Local secrets
+.env
+.env.*
