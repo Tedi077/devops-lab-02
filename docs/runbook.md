@@ -197,3 +197,73 @@ docker exec notes-api whoami
 Очаквано състояние: `healthy`.
 
 Приложението работи с непривилегирован потребител `appuser`, а Docker проверява автоматично `/health`.
+## Стартиране с Compose
+
+Docker Compose стартира Notes API и PostgreSQL с една команда.
+Командите се изпълняват от корена на хранилището.
+
+### Подготовка
+
+Необходим е Docker с Docker Compose.
+
+```bash
+cp .env.example .env
+```
+
+Променете POSTGRES_PASSWORD в .env с индивидуална парола.
+Файлът .env не се качва в GitHub.
+
+### Стартиране
+
+```bash
+docker compose up -d --build --wait
+```
+
+Проверка на услугите:
+
+```bash
+docker compose ps
+curl http://localhost:8000/ready
+curl http://localhost:8000/version
+```
+
+Очакваме app и db да бъдат healthy, /ready да върне
+{"status":"ready"}, а /version да върне {"version":"0.4.0"}.
+
+### Логове и процеси
+
+```bash
+docker compose logs app
+docker compose logs db
+docker compose top
+```
+
+### Adminer
+
+```bash
+docker compose --profile tools up -d
+```
+
+Adminer е достъпен на порт 8081.
+За PostgreSQL използвайте сървър db и данните от локалния .env файл.
+Портът трябва да остане с ограничен достъп.
+
+### Спиране
+
+```bash
+docker compose down
+```
+
+Командата премахва контейнерите и мрежата, но запазва
+именувания volume postgres_data и съхранените бележки.
+
+### Изтриване на данните
+
+```bash
+docker compose down -v
+```
+
+Внимание: параметърът -v премахва и именувания volume,
+което изтрива данните на PostgreSQL.
+
+За обикновено спиране използвайте docker compose down.

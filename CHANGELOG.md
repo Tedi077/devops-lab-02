@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0 - 2026-10-26
+
+- Added Docker Compose configuration for Notes API.
+- Added PostgreSQL 17 with persistent storage.
+- Added database healthcheck and service dependencies.
+- Added environment configuration with .env.example.
+- Added optional Adminer service using the tools profile.
+- Documented Docker Compose startup and data persistence.
+- Accepted ADR 0002: PostgreSQL database selection.
+
+
 ## 0.2.0 - 2026-10-17
 
 - Initial template: notes API with health and version endpoints.
