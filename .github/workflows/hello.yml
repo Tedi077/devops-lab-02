@@ -1,0 +1,11 @@
+name: Hello
+
+on: push
+
+jobs:
+  hello:
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "Здравей от ${{ github.actor }} на ${{ runner.os }}"
+      - uses: actions/checkout@v7
+      - run: ls -la
