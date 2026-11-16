@@ -156,36 +156,3 @@
       ansible.builtin.service:
         name: nginx
         state: reloaded
-
-- name: Configure nginx load balancer
-  hosts: lb
-  become: true
-
-  tasks:
-    - name: Install nginx
-      ansible.builtin.apt:
-        name: nginx
-        state: present
-        update_cache: true
-        cache_valid_time: 3600
-
-    - name: Configure nginx load balancing
-      ansible.builtin.template:
-        src: templates/nginx.conf.j2
-        dest: /etc/nginx/sites-available/default
-        owner: root
-        group: root
-        mode: "0644"
-      notify: Reload nginx
-
-    - name: Enable and start nginx
-      ansible.builtin.service:
-        name: nginx
-        state: started
-        enabled: true
-
-  handlers:
-    - name: Reload nginx
-      ansible.builtin.service:
-        name: nginx
-        state: reloaded
