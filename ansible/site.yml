@@ -1,0 +1,191 @@
+---
+- name: Configure common packages
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install common packages
+      ansible.builtin.apt:
+        name:
+          - curl
+          - ca-certificates
+          - acl
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+- name: Configure PostgreSQL database
+  hosts: db
+  become: true
+
+  tasks:
+    - name: Install PostgreSQL packages
+      ansible.builtin.apt:
+        name:
+          - postgresql
+          - python3-psycopg2
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Allow PostgreSQL to listen on all interfaces
+      ansible.builtin.lineinfile:
+        path: /etc/postgresql/17/main/postgresql.conf
+        regexp: '^#?\s*listen_addresses\s*='
+        line: "listen_addresses = '*'"
+      notify: Restart PostgreSQL
+
+    - name: Allow remote PostgreSQL connections
+      ansible.builtin.lineinfile:
+        path: /etc/postgresql/17/main/pg_hba.conf
+        regexp: '^host\s+all\s+all\s+0\.0\.0\.0/0\s+'
+        line: "host all all 0.0.0.0/0 scram-sha-256"
+        insertafter: EOF
+      notify: Restart PostgreSQL
+
+    - name: Ensure PostgreSQL is running
+      ansible.builtin.service:
+        name: postgresql
+        state: started
+        enabled: true
+
+    - name: Create database user
+      community.postgresql.postgresql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        state: present
+      become_user: postgres
+      no_log: true
+
+    - name: Create notes database
+      community.postgresql.postgresql_db:
+        name: "{{ db_name }}"
+        owner: "{{ db_user }}"
+        state: present
+      become_user: postgres
+
+  handlers:
+    - name: Restart PostgreSQL
+      ansible.builtin.service:
+        name: postgresql
+        state: restarted
+
+- name: Configure Notes API web servers
+  hosts: web
+  become: true
+
+  tasks:
+    - name: Install web server dependencies
+      ansible.builtin.apt:
+        name:
+          - python3-venv
+          - python3-packaging
+          - git
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Clone Notes API repository
+      ansible.builtin.git:
+        repo: https://github.com/Tedi077/devops-lab-02.git
+        dest: /opt/notes
+        version: main
+        update: true
+      notify: Restart notes
+
+    - name: Install Python requirements
+      ansible.builtin.pip:
+        requirements: /opt/notes/requirements.txt
+        virtualenv: /opt/notes/.venv
+        virtualenv_command: python3 -m venv
+      notify: Restart notes
+
+    - name: Configure Notes API systemd service
+      ansible.builtin.template:
+        src: templates/notes.service.j2
+        dest: /etc/systemd/system/notes.service
+        owner: root
+        group: root
+        mode: "0600"
+      notify: Restart notes
+      no_log: true
+
+    - name: Enable and start Notes API
+      ansible.builtin.systemd_service:
+        name: notes
+        state: started
+        enabled: true
+        daemon_reload: true
+
+  handlers:
+    - name: Restart notes
+      ansible.builtin.systemd_service:
+        name: notes
+        state: restarted
+        daemon_reload: true
+
+- name: Configure nginx load balancer
+  hosts: lb
+  become: true
+
+  tasks:
+    - name: Install nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Configure nginx load balancing
+      ansible.builtin.template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/default
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: Enable and start nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Reload nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
+
+- name: Configure nginx load balancer
+  hosts: lb
+  become: true
+
+  tasks:
+    - name: Install nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Configure nginx load balancing
+      ansible.builtin.template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/default
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: Enable and start nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Reload nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded
