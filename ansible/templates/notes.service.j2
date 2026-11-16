@@ -1,0 +1,13 @@
+[Unit]
+Description=Notes API on {{ inventory_hostname }}
+After=network-online.target
+
+[Service]
+WorkingDirectory=/opt/notes
+Environment=DATABASE_URL={{ database_url }}
+Environment=APP_VERSION=0.7.0
+ExecStart=/opt/notes/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+upstream notes {
+{% for host in groups['web'] %}
+    server {{ host }}:8000;
+{% endfor %}
+}
+
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://notes;
+        add_header X-Served-By $upstream_addr always;
+    }
+}

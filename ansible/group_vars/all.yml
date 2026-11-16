@@ -1,0 +1,5 @@
+---
+db_name: notes
+db_user: notes
+db_password: "{{ lookup('ansible.builtin.file', playbook_dir ~ '/.lab7-db-password') | trim }}"
+database_url: "postgresql://{{ db_user }}:{{ db_password }}@db:5432/{{ db_name }}"

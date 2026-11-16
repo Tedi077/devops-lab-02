@@ -24,3 +24,4 @@ venv/
 
 # MkDocs build output
 site/
+ansible/.lab7-db-password
